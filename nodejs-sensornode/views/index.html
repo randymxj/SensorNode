@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html ng-app lang="en">
+
+<% include header.html %>
+
+<body>
+
+	<% include navbar.html %>
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar">
+				<% include sidebar.html %>
+			</div>
+			
+			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+				<div ng-controller="ctrl_overview">
+					<h1 class="page-header">Overview</h1>
+					<div class="row placeholders">
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Temperature</h4>
+							<span class="text-muted">{{temperature}} &deg;C</span>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Humidity</h4>
+							<span class="text-muted">{{humidity}} %</span>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Barometric Pressure</h4>
+							<span class="text-muted">{{pressure}} hPa</span>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Compass</h4>
+							<span class="text-muted">{{compass}}</span>
+						</div>
+					</div>
+					
+					<canvas id="chart_overview" width="900" height="300"></canvas>
+
+					<h2 class="sub-header">Data</h2>
+					<div class="table-responsive">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th>Time</th>
+									<th>Temperature (&deg;C)</th>
+									<th>Humidity (%)</th>
+									<th>Barometric Pressure (hPa)</th>
+									<th>Compass</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-repeat="d in data">
+									<td>{{d.time}}</td>
+									<td>{{d.temperature}}</td>
+									<td>{{d.humidity}}</td>
+									<td>{{d.pressure}}</td>
+									<td>{{d.compass}}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div> <!-- controller -->
+			</div> <!-- main -->
+		</div> <!-- row -->
+	</div> <!-- container-fluid -->
+	
+	<% include footer.html %>
+</body>
+
+<script type="text/javascript">
+<!-- INLINE JS CODE -->
+</script>
