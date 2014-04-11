@@ -16,29 +16,37 @@
 			
 			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 				<div ng-controller="ctrl_overview">
-					<h1 class="page-header">Overview</h1>
+					<h1 class="page-header">Overview (Realtime)</h1>
 					<div class="row placeholders">
 						<div class="col-xs-6 col-sm-3 placeholder">
-							<h4>Temperature</h4>
-							<span class="text-muted">{{temperature}} &deg;C</span>
+							<h4><a href="#" id="link_chart_temp">Temperature</a></h4>
+							<h4><span class="text-muted">{{temperature}} &deg;C</span></h4>
 						</div>
 						<div class="col-xs-6 col-sm-3 placeholder">
-							<h4>Humidity</h4>
-							<span class="text-muted">{{humidity}} %</span>
+							<h4><a href="#" id="link_chart_humi">Humidity</a></h4>
+							<h4><span class="text-muted">{{humidity}} %</span></h4>
 						</div>
 						<div class="col-xs-6 col-sm-3 placeholder">
-							<h4>Barometric Pressure</h4>
-							<span class="text-muted">{{pressure}} hPa</span>
+							<h4><a href="#" id="link_chart_pres">Barometric Pressure</a></h4>
+							<h4><span class="text-muted">{{pressure}} hPa</span></h4>
 						</div>
 						<div class="col-xs-6 col-sm-3 placeholder">
 							<h4>Compass</h4>
-							<span class="text-muted">{{compass}}</span>
+							<h4><span class="text-muted">{{compass}}</span></h4>
 						</div>
 					</div>
 					
-					<canvas id="chart_overview" width="900" height="300"></canvas>
+					<h2 class="sub-header" id="box_header_chart" style="display: none;">
+						<span id="title_header_chart"></span>
+						<span class="pull-right">
+							<a href="#" class="btn_chart_hrs" data-hrs="4">[4 hrs]</a>
+							<a href="#" class="btn_chart_hrs" data-hrs="24">[24 hrs]</a>
+							<a href="#" class="btn_chart_hrs" data-hrs="168">[A Week]</a>
+						</span>
+					</h2>
+					<canvas id="chart_overview" style="display: none;"></canvas>
 
-					<h2 class="sub-header">Data</h2>
+					<h2 class="sub-header">Historical Data</h2>
 					<div class="table-responsive">
 						<table class="table table-striped">
 							<thead>

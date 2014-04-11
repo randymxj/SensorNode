@@ -40,18 +40,26 @@ exports.gethistorydata = function(req, res){
 	});
 
 	client.query('USE ' + database);
-
-	var query = client.query('SELECT * FROM sensordata ORDER BY sensordata.id DESC LIMIT ?, ?', [0, 25], function(err, results){
+	
+	// Get parameter
+	var step = parseInt(req.query.step);
+	var start = parseInt(req.query.start);
+	var end = parseInt(req.query.end) * step;
+	
+	var query = client.query('SELECT * FROM sensordata ORDER BY sensordata.id DESC LIMIT ?, ?', [start, end], function(err, results){
 		var data = [];
 		for( i = 0; i < results.length; i++ )
 		{
-			var obj = {"time": results[i].time,
-				"temperature": results[i].temperature,
-				"humidity": results[i].humidity,
-				"pressure": results[i].pressure,
-				"compass": results[i].compass,
-				};
-			data.push(obj);
+			if( i % step == 0 )
+			{
+				var obj = {"time": results[i].time,
+					"temperature": results[i].temperature,
+					"humidity": results[i].humidity,
+					"pressure": results[i].pressure,
+					"compass": results[i].compass,
+					};
+				data.push(obj);
+			}
 		}
 		
 		client.end();

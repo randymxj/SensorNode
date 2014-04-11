@@ -1,6 +1,13 @@
 // AngularJS function
 function ctrl_overview($scope, $http, $timeout) 
-{ 
+{
+	// For how long time a data frame been captured
+	FRAME_FREQ_IN_MIN = 10;
+	// For how many data frame been captured in one hour
+	DATA_FRAME_IN_HRS = 60 / FRAME_FREQ_IN_MIN;
+	// For how many data to put on the chart
+	CHART_PLOT_DENSITY = 24;
+	
 	$scope.time = 0;
 	$scope.temperature = 0;
 	$scope.humidity = 0;
@@ -10,65 +17,21 @@ function ctrl_overview($scope, $http, $timeout)
 	$scope.data = [];
 	
 	var plotdata = {
-		labels : [],
-		datasets : [
-			{
-				fillColor : "rgba(151,187,205,0.5)",
-				strokeColor : "rgba(151,187,205,1)",
-				pointColor : "rgba(151,187,205,1)",
-				pointStrokeColor : "#fff",
-				data : []
-			},
-		]
+			type : '',
+			labels : [],
+			datasets : [
+				{
+					fillColor : "rgba(151,187,205,0.5)",
+					strokeColor : "rgba(151,187,205,1)",
+					pointColor : "rgba(151,187,205,1)",
+					pointStrokeColor : "#fff",
+					data : []
+				},
+			]
 	}
 	
-	// Request the history at the page loading
-	$http(
-	{
-		method: 'GET', 
-		url: '/gethistorydata'
-	}).
-	success(function(data, status, headers, config) 
-	{
-		// this callback will be called asynchronously
-		// when the response is available
-		for( i = 0; i < data.length; i++ )
-		{
-			var obj = [];
-			dateObj = new Date(data[i].time);
-			obj.time = dateObj.toLocaleString();
-			obj.temperature = data[i].temperature;
-			obj.humidity = data[i].humidity;
-			obj.pressure = data[i].pressure;
-			obj.compass = data[i].compass;
-			$scope.data.push(obj);
-		}
-		
-		// Push into plot
-		for( i = data.length - 1; i >= 0; i-- )
-		{
-			dateObj = new Date(data[i].time);
-			plotdata.labels.push(dateObj.Format("hh:mm"));
-			plotdata.datasets[0].data.push(data[i].temperature);
-		}
-		
-		//Get context with jQuery - using jQuery's .get() method.
-		var ctx = $("#chart_overview").get(0).getContext("2d");
-		//ctx.canvas.width  = window.innerWidth * 0.5;
-		//This will get the first returned node in the jQuery collection.
-		var myNewChart = new Chart(ctx);
-		// Plot
-		options = {
-			scaleLabel : "<%=value%>",
-			animation: true,};
-		new Chart(ctx).Line(plotdata,options);
-	}).
-	error(function(data, status, headers, config) 
-	{
-		// called asynchronously if an error occurs
-		// or server returns response with an error status.
-		console.log('AJAX GET ERROR');
-	});
+	// Get history data for past 24 hours
+	getHistoryData( 0, CHART_PLOT_DENSITY, DATA_FRAME_IN_HRS, '');
 	  
 	// Request the realtime with a timer
 	$scope.onTimeout = function()
@@ -118,6 +81,144 @@ function ctrl_overview($scope, $http, $timeout)
 	// Start the timer
 	var mytimeout = $timeout($scope.onTimeout);
 
+	/*
+	*	There start with some AngularJS functions
+	*/
+	function getHistoryData(start, end, step, type)
+	{
+		// Request the history at the page loading
+		$http(
+		{
+			method: 'GET', 
+			url: '/gethistorydata',
+			params: {
+				start: start,
+				end: end,
+				step: step
+			},
+		}).
+		success(function(data, status, headers, config) 
+		{
+			$scope.data = [];
+			
+			// this callback will be called asynchronously
+			// when the response is available
+			for( i = 0; i < data.length; i++ )
+			{
+				var obj = [];
+				dateObj = new Date(data[i].time);
+				obj.time = dateObj.toLocaleString();
+				obj.temperature = data[i].temperature;
+				obj.humidity = data[i].humidity;
+				obj.pressure = data[i].pressure;
+				obj.compass = data[i].compass;
+				$scope.data.push(obj);
+			}
+			
+			// Update plot
+			if( type != '' )
+			{
+				updateChart(step, type);
+			}
+		}).
+		error(function(data, status, headers, config) 
+		{
+			// called asynchronously if an error occurs
+			// or server returns response with an error status.
+			console.log('AJAX GET ERROR');
+		});
+	}
+	
+	/*
+	*	There start with some jQuery functions
+	*/
+	$("#link_chart_temp").click(function()
+	{
+		getHistoryData( 0, CHART_PLOT_DENSITY, DATA_FRAME_IN_HRS, 'temp');
+	});
+	
+	$("#link_chart_humi").click(function()
+	{
+		getHistoryData( 0, CHART_PLOT_DENSITY, DATA_FRAME_IN_HRS, 'humi');
+	});
+	
+	$("#link_chart_pres").click(function()
+	{
+		getHistoryData( 0, CHART_PLOT_DENSITY, DATA_FRAME_IN_HRS, 'pres');
+	});
+	
+	$(".btn_chart_hrs").click(function()
+	{
+		var hrs = $(this).data('hrs');
+		var step = hrs * DATA_FRAME_IN_HRS / CHART_PLOT_DENSITY;
+		
+		getHistoryData( 0, CHART_PLOT_DENSITY, step, plotdata.type);
+	});
+	
+	function updateChart(step, type)
+	{
+		var scaleLabel = '<%=value%>';
+		var hrs = step * CHART_PLOT_DENSITY / DATA_FRAME_IN_HRS;
+		
+		// Clean the existing data
+		plotdata.labels = [];
+		plotdata.datasets[0].data = [];
+		
+		// Push into plot
+		for( i = $scope.data.length - 1; i >= 0; i-- )
+		{
+			dateObj = new Date($scope.data[i].time);
+			plotdata.labels.push(dateObj.Format("MM/dd, hh:mm"));
+			if( type == 'temp' )
+			{
+				plotdata.datasets[0].data.push($scope.data[i].temperature);
+			}
+			else if( type == 'humi' )
+			{
+				plotdata.datasets[0].data.push($scope.data[i].humidity);
+			}
+			else if( type == 'pres' )
+			{
+				plotdata.datasets[0].data.push($scope.data[i].pressure);
+			}
+		}
+		
+		if( type == 'temp' )
+		{
+			plotdata.type = 'temp';
+			$('#title_header_chart').text('Historical Temperature Chart (' + hrs + ' hrs)');
+			scaleLabel = "<%=value%> °C";
+		}
+		else if( type == 'humi' )
+		{
+			plotdata.type = 'humi';
+			$('#title_header_chart').text('Historical Humidity Chart (' + hrs + ' hrs)');
+			scaleLabel = "<%=value%> %";
+		}
+		else if( type == 'pres' )
+		{
+			plotdata.type = 'pres';
+			$('#title_header_chart').text('Historical Barometric Pressure Chart (' + hrs + ' hrs)');
+			scaleLabel = "<%=value%> hPa";
+		}
+		
+		$("#box_header_chart").show();
+		
+		//Get context with jQuery - using jQuery's .get() method.
+		$("#chart_overview").show();
+		var ctx = $("#chart_overview").get(0).getContext("2d");
+		ctx.canvas.width  = window.innerWidth * 0.6;
+		ctx.canvas.height  = 300;
+		//This will get the first returned node in the jQuery collection.
+		var myNewChart = new Chart(ctx);
+		// Plot
+		var options = {
+			scaleLabel : scaleLabel,
+			scaleFontSize : 15,
+			animation: false,};
+		new Chart(ctx).Line(plotdata,options);
+	}
+	
 }
 
 
