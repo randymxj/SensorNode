@@ -1,17 +1,17 @@
 #!/usr/bin/python
 
 import SensorGlobal
-import MySQLdb
 import time
 import traceback
+import pymongo
+import datetime
 
 from SensorServer import SensorServer
 
 try:
-	conn = MySQLdb.connect(host='192.168.1.100',user='sensornode',passwd='6fAKNHnfndWB54mz',port=3306)
-	cur = conn.cursor()
-     
-	conn.select_db('sensornode')
+	conn = pymongo.Connection('192.168.1.26', 27017)
+	db = conn.SensorNode
+	data = db.sensordatas
 		
 	while True:
 			
@@ -24,18 +24,15 @@ try:
 		
 		#print "Temperature: %.2f/%.2f C, Humidity: %.2f %%, Barometric Pressure: %.2f hPa, Magnetic compass: %.2f" % (temp1, temp2, rh, pre, cps)
 		
-		value = [time.strftime('%Y-%m-%d %H:%M:%S'), temp1, rh, pre, cps]	
-		cur.execute("INSERT INTO sensordata (time, temperature, humidity, pressure, compass) VALUES (%s, %s, %s, %s, %s)", value)
+		value = {"time":datetime.datetime.utcnow(),
+			"temperature":temp1,
+			"humidity":rh,
+			"pressure":pre,
+			"compass":cps}
 		
-		conn.commit()
+		data.insert(value)
 				
 		time.sleep(600)
- 
-	cur.close()
-	conn.close()
- 
-except MySQLdb.Error, e:
-	print "Mysql Error %d: %s" % (e.args[0], e.args[1])
 	
 except Exception, e:
 	exstr = traceback.format_exc()

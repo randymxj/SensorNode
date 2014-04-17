@@ -3,19 +3,13 @@
  * Data
  */
 
-exports.getrealtimedata = function(req, res){
-	var mysql = require('mysql');
-	var database = 'sensornode';
-	var table = 'sensordata';
-	var client = mysql.createConnection({  
-		host : '192.168.1.100',  
-		user : 'sensornode',  
-		password : '6fAKNHnfndWB54mz'
-	});
-
-	client.query('USE ' + database);
-
-	var query = client.query('SELECT * FROM sensordata ORDER BY sensordata.id DESC LIMIT ?, ?', [0, 1], function(err, results){
+exports.getrealtimedata = function(req, res){	
+	var mongoose = require('mongoose');
+	var db = mongoose.createConnection('localhost', 'SensorNode');
+	var DataSchema = require('../models/sensordata.js').DataSchema;
+	var SensorData = db.model('SensorData', DataSchema);
+	
+	SensorData.find(function(err, results){
 		var data = {"time": results[0].time,
 				"temperature": results[0].temperature,
 				"humidity": results[0].humidity,
@@ -23,30 +17,26 @@ exports.getrealtimedata = function(req, res){
 				"compass": results[0].compass,
 				};
 		
-		client.end();
-		
 		res.send(data);
-	});
+    });
+	
+	mongoose.connection.close();
 };
 
 exports.gethistorydata = function(req, res){
-	var mysql = require('mysql');
-	var database = 'sensornode';
-	var table = 'sensordata';
-	var client = mysql.createConnection({  
-		host : '192.168.1.100',  
-		user : 'sensornode',  
-		password : '6fAKNHnfndWB54mz'
-	});
 
-	client.query('USE ' + database);
+	var mongoose = require('mongoose');
+	var db = mongoose.createConnection('localhost', 'SensorNode');
+	var DataSchema = require('../models/sensordata.js').DataSchema;
+	var SensorData = db.model('SensorData', DataSchema);
 	
 	// Get parameter
 	var step = parseInt(req.query.step);
 	var start = parseInt(req.query.start);
 	var end = parseInt(req.query.end) * step;
-	
-	var query = client.query('SELECT * FROM sensordata ORDER BY sensordata.id DESC LIMIT ?, ?', [start, end], function(err, results){
+
+	//SensorData.find(function(err, results){
+	SensorData.find({}).sort('-time').skip(start).limit(end).exec(function(err, results){
 		var data = [];
 		for( i = 0; i < results.length; i++ )
 		{
@@ -62,10 +52,10 @@ exports.gethistorydata = function(req, res){
 			}
 		}
 		
-		client.end();
-		
 		res.send(data);
-	});
+    });
+	
+	mongoose.connection.close();
 };
 
 function convertToJSONDate(strDate){

@@ -9,6 +9,7 @@
     "express": "3.5.1",
     "ejs": "*",
 	"express-partials": "*",
-	"mysql": "*"
+	"mongoose": "*",
+	"express-mongoose": "*"
   }
 }
