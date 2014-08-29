@@ -1,3 +1,4 @@
 <ul class="nav nav-sidebar">
-	<li class="active"><a href="#">Overview</a></li>
+	<li <% if (title == "SensorNode Console") { %> class="active" <% } %> ><a href="/">Overview</a></li>
+	<li <% if (title == "SensorNode Hostinfo") { %> class="active" <% } %> ><a href="/hostinfo">Host Info</a></li>
 </ul>

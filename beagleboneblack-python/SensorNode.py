@@ -9,7 +9,7 @@ import datetime
 from SensorServer import SensorServer
 
 try:
-	conn = pymongo.Connection('192.168.1.26', 27017)
+	conn = pymongo.Connection('localhost', 27017)
 	db = conn.SensorNode
 	data = db.sensordatas
 		

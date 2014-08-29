@@ -15,24 +15,24 @@
 			</div>
 			
 			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-				<div ng-controller="ctrl_overview">
+				<div ng-controller="ctrl_overview_sensordata">
 					<h1 class="page-header">Overview (Realtime)</h1>
 					<div class="row placeholders">
 						<div class="col-xs-6 col-sm-3 placeholder">
 							<h4><a href="#" id="link_chart_temp">Temperature</a></h4>
-							<h4><span class="text-muted">{{temperature}} &deg;C</span></h4>
+							<h4><span class="text-muted">{{Temperature}} &deg;C</span></h4>
 						</div>
 						<div class="col-xs-6 col-sm-3 placeholder">
 							<h4><a href="#" id="link_chart_humi">Humidity</a></h4>
-							<h4><span class="text-muted">{{humidity}} %</span></h4>
+							<h4><span class="text-muted">{{Humidity}} %</span></h4>
 						</div>
 						<div class="col-xs-6 col-sm-3 placeholder">
 							<h4><a href="#" id="link_chart_pres">Barometric Pressure</a></h4>
-							<h4><span class="text-muted">{{pressure}} hPa</span></h4>
+							<h4><span class="text-muted">{{Pressure}} hPa</span></h4>
 						</div>
 						<div class="col-xs-6 col-sm-3 placeholder">
-							<h4>Compass</h4>
-							<h4><span class="text-muted">{{compass}}</span></h4>
+							<h4>UVIndex</h4>
+							<h4><span class="text-muted">{{UVIndex}}</span></h4>
 						</div>
 					</div>
 					
@@ -55,16 +55,16 @@
 									<th>Temperature (&deg;C)</th>
 									<th>Humidity (%)</th>
 									<th>Barometric Pressure (hPa)</th>
-									<th>Compass</th>
+									<th>UVIndex</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="d in data">
-									<td>{{d.time}}</td>
-									<td>{{d.temperature}}</td>
-									<td>{{d.humidity}}</td>
-									<td>{{d.pressure}}</td>
-									<td>{{d.compass}}</td>
+									<td>{{d.Time}}</td>
+									<td>{{d.Temperature}}</td>
+									<td>{{d.Humidity}}</td>
+									<td>{{d.Pressure}}</td>
+									<td>{{d.UVIndex}}</td>
 								</tr>
 							</tbody>
 						</table>

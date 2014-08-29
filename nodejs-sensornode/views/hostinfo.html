@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<html ng-app lang="en">
+
+<% include header.html %>
+
+<body>
+
+	<% include navbar.html %>
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar">
+				<% include sidebar.html %>
+			</div>
+			
+			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+				<div ng-controller="ctrl_overview_hostinfo">
+					<h1 class="page-header">CPU Info</h1>
+					<div class="row placeholders">
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>CPU Speed</h4>
+							<h4><span class="text-muted">{{cpu_speed}} MHz</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>User Time</h4>
+							<h4><span class="text-muted">{{cpu_times_user}} %</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>System Time</h4>
+							<h4><span class="text-muted">{{cpu_times_sys}} %</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Idle Time</h4>
+							<h4><span class="text-muted">{{cpu_times_idle}} %</span></h4>
+						</div>
+					</div>
+					
+					<h1 class="page-header">MongoDB Info</h1>
+					<div class="row placeholders">
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Data Count</h4>
+							<h4><span class="text-muted">{{db_count}}</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Size</h4>
+							<h4><span class="text-muted">{{db_size}} Bytes</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Storage Size</h4>
+							<h4><span class="text-muted">{{db_storageSize}} Bytes</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Total Index Size</h4>
+							<h4><span class="text-muted">{{db_totalIndexSize}} Bytes</span></h4>
+						</div>
+					</div>
+					
+				</div> <!-- controller -->
+			</div> <!-- main -->
+		</div> <!-- row -->
+	</div> <!-- container-fluid -->
+	
+	<% include footer.html %>
+</body>
+
+<script type="text/javascript">
+<!-- INLINE JS CODE -->
+</script>

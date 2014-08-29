@@ -1,5 +1,5 @@
 // AngularJS function
-function ctrl_overview($scope, $http, $timeout) 
+function ctrl_overview_sensordata($scope, $http, $timeout) 
 {
 	// For how long time a data frame been captured
 	FRAME_FREQ_IN_MIN = 10;
@@ -8,11 +8,13 @@ function ctrl_overview($scope, $http, $timeout)
 	// For how many data to put on the chart
 	CHART_PLOT_DENSITY = 24;
 	
-	$scope.time = 0;
-	$scope.temperature = 0;
-	$scope.humidity = 0;
-	$scope.pressure = 0;
-	$scope.compass = 0;
+	$scope.Time = 0;
+	$scope.Temperature = 0;
+	$scope.Humidity = 0;
+	$scope.Pressure = 0;
+	$scope.VisibleLight = 0;
+	$scope.IRLight = 0;
+	$scope.UVIndex = 0;
 	
 	$scope.data = [];
 	
@@ -45,29 +47,13 @@ function ctrl_overview($scope, $http, $timeout)
 		{
 			// this callback will be called asynchronously
 			// when the response is available
-			$scope.time = new Date(data.time).toLocaleString();
-			$scope.temperature = data.temperature;
-			$scope.humidity = data.humidity;
-			$scope.pressure = data.pressure;
-			$scope.compass = data.compass;		
-			if( $scope.compass >= 0 && $scope.compass < 15 )
-				$scope.compass += ' N';
-			else if( $scope.compass >= 15 && $scope.compass < 75 )
-				$scope.compass += ' NE';
-			else if( $scope.compass >= 75 && $scope.compass < 115 )
-				$scope.compass += ' E';
-			else if( $scope.compass >= 115 && $scope.compass < 165 )
-				$scope.compass += ' SE';
-			else if( $scope.compass >= 165 && $scope.compass < 195 )
-				$scope.compass += ' S';
-			else if( $scope.compass >= 195 && $scope.compass < 255 )
-				$scope.compass += ' SW';
-			else if( $scope.compass >= 255 && $scope.compass < 295 )
-				$scope.compass += ' W';
-			else if( $scope.compass >= 295 && $scope.compass < 345 )
-				$scope.compass += ' NW';
-			else if( $scope.compass >= 345 && $scope.compass <= 360 )
-				$scope.compass += ' N';
+			$scope.Time = new Date(data.Time).toLocaleString();
+			$scope.Temperature = data.Temperature;
+			$scope.Humidity = data.Humidity;
+			$scope.Pressure = data.Pressure;
+			$scope.VisibleLight = data.VisibleLight;		
+			$scope.IRLight = data.IRLight;	
+			$scope.UVIndex = data.UVIndex;	
 		}).
 		error(function(data, status, headers, config) 
 		{
@@ -106,12 +92,14 @@ function ctrl_overview($scope, $http, $timeout)
 			for( i = 0; i < data.length; i++ )
 			{
 				var obj = [];
-				dateObj = new Date(data[i].time);
-				obj.time = dateObj.toLocaleString();
-				obj.temperature = data[i].temperature;
-				obj.humidity = data[i].humidity;
-				obj.pressure = data[i].pressure;
-				obj.compass = data[i].compass;
+				dateObj = new Date(data[i].Time);
+				obj.Time = dateObj.toLocaleString();
+				obj.Temperature = data[i].Temperature;
+				obj.Humidity = data[i].Humidity;
+				obj.Pressure = data[i].Pressure;
+				obj.VisibleLight = data[i].VisibleLight;		
+				obj.IRLight = data[i].IRLight;
+				obj.UVIndex = data[i].UVIndex;
 				$scope.data.push(obj);
 			}
 			
@@ -167,7 +155,7 @@ function ctrl_overview($scope, $http, $timeout)
 		// Push into plot
 		for( i = $scope.data.length - 1; i >= 0; i-- )
 		{
-			dateObj = new Date($scope.data[i].time);
+			dateObj = new Date($scope.data[i].Time);
 			plotdata.labels.push(dateObj.Format("MM/dd, hh:mm"));
 			if( type == 'temp' )
 			{
@@ -216,10 +204,68 @@ function ctrl_overview($scope, $http, $timeout)
 			scaleLabel : scaleLabel,
 			scaleFontSize : 15,
 			animation: false,};
-		new Chart(ctx).Line(plotdata,options);
+		new Chart(ctx).Line(plotdata, options);
 	}
 	
 }
+
+
+function ctrl_overview_hostinfo($scope, $http, $timeout) 
+{
+	$scope.db_count = 0;
+	$scope.db_size = 0;
+	$scope.db_storageSize = 0;
+	$scope.db_totalIndexSize = 0;
+	  
+	// Request the realtime with a timer
+	$scope.onTimeout = function()
+	{   
+		$http(
+		{
+			method: 'GET', 
+			url: '/gethostinfo'
+		}).
+		success(function(data, status, headers, config) 
+		{
+			// this callback will be called asynchronously
+			// when the response is available
+			// DB info
+			$scope.db_count = data.db_count;
+			$scope.db_size = data.db_size;
+			$scope.db_storageSize = data.db_storageSize;
+			$scope.db_totalIndexSize = data.db_totalIndexSize;
+			// CPU info
+			$scope.cpu_speed = data.cpu_speed;
+			cpu_total_use = data.cpu_times_user + data.cpu_times_nice + data.cpu_times_sys + data.cpu_times_idle + data.cpu_times_irq;
+			$scope.cpu_times_user = ( ( data.cpu_times_user / cpu_total_use ) * 100 ).toFixed(3);
+			$scope.cpu_times_nice = ( ( data.cpu_times_nice / cpu_total_use ) * 100 ).toFixed(3);
+			$scope.cpu_times_sys = ( ( data.cpu_times_sys / cpu_total_use ) * 100 ).toFixed(3);
+			$scope.cpu_times_idle = ( ( data.cpu_times_idle / cpu_total_use ) * 100 ).toFixed(3);
+			$scope.cpu_times_irq = ( ( data.cpu_times_irq / cpu_total_use ) * 100 ).toFixed(3);
+		}).
+		error(function(data, status, headers, config) 
+		{
+			// called asynchronously if an error occurs
+			// or server returns response with an error status.
+			console.log('AJAX GET ERROR');
+		});
+		
+		mytimeout = $timeout($scope.onTimeout, 60000);   
+	}  
+	// Start the timer
+	var mytimeout = $timeout($scope.onTimeout);
+
+	/*
+	*	There start with some AngularJS functions
+	*/
+	
+	
+	/*
+	*	There start with some jQuery functions
+	*/
+	
+}
+
 
 
 Date.prototype.Format = function (fmt) {
