@@ -2,23 +2,53 @@
 /*
  * Data
  */
- 
+
+var mongoose = require('mongoose');
+var db = mongoose.createConnection('localhost', 'SensorNode');
+var connected = false;
+
+db.on('error', function(err){
+	console.error('ERROR - Failed to connect to Mongodb: ', err);
+});
+
+db.on('open', function(ref){
+	console.log('INFO - Open connection to Mongodb.');
+});
+
+db.on('connected', function(ref){
+	console.log('INFO - Connected to Mongodb.');
+	connected = true;
+});
+
+db.on('disconnected', function(ref){
+	console.log('INFO - Disconnected from Mongodb.');
+	connected = false;
+});
+
 exports.gethostinfo = function(req, res){	
-	var mongoose = require('mongoose');
-	var db = mongoose.createConnection('localhost', 'SensorNode');
 	var DataSchema = require('../models/sensordata.js').DataSchema;
 	var SensorData = db.model('SensorData', DataSchema);
-	
+
 	var os = require("os"),
     cpus = os.cpus();
 	
 	SensorData.collection.stats({scale: 1}, function(err, results){
-		var data = {"cpu_speed": cpus[0].speed,
+		var data = {"cpu_model": cpus[0].model,
+					"cpu_speed": cpus[0].speed,
 					"cpu_times_user": cpus[0].times.user,
 					"cpu_times_nice": cpus[0].times.nice,
 					"cpu_times_sys": cpus[0].times.sys,
 					"cpu_times_idle": cpus[0].times.idle,
 					"cpu_times_irq": cpus[0].times.irq,
+					"sys_uptime": os.uptime(),
+					"sys_loadavg1": os.loadavg()[0],
+					"sys_loadavg5": os.loadavg()[1],
+					"sys_loadavg10": os.loadavg()[2],
+					"sys_platform": os.platform(),
+					"sys_arch": os.arch(),
+					"sys_release": os.release(),
+					"mem_free": os.freemem(),
+					"mem_total": os.totalmem(),
 					"db_count": results.count,
 					"db_size": results.size,
 					"db_storageSize": results.storageSize,
@@ -31,13 +61,13 @@ exports.gethostinfo = function(req, res){
 	mongoose.connection.close();
 };
 
-exports.getrealtimedata = function(req, res){	
-	var mongoose = require('mongoose');
-	var db = mongoose.createConnection('localhost', 'SensorNode');
+exports.getrealtimedata = function(req, res){
 	var DataSchema = require('../models/sensordata.js').DataSchema;
 	var SensorData = db.model('SensorData', DataSchema);
 	
-	SensorData.find(function(err, results){
+	
+	
+	SensorData.find({}).sort('-Time').exec(function(err, results){
 		var data = {"Time": results[0].Time,
 					"Temperature": results[0].Temperature,
 					"Humidity": results[0].Humidity,
@@ -54,9 +84,6 @@ exports.getrealtimedata = function(req, res){
 };
 
 exports.gethistorydata = function(req, res){
-
-	var mongoose = require('mongoose');
-	var db = mongoose.createConnection('localhost', 'SensorNode');
 	var DataSchema = require('../models/sensordata.js').DataSchema;
 	var SensorData = db.model('SensorData', DataSchema);
 	
@@ -65,7 +92,6 @@ exports.gethistorydata = function(req, res){
 	var start = parseInt(req.query.start);
 	var end = parseInt(req.query.end) * step;
 
-	//SensorData.find(function(err, results){
 	SensorData.find({}).sort('-Time').skip(start).limit(end).exec(function(err, results){
 		var data = [];
 		for( i = 0; i < results.length; i++ )

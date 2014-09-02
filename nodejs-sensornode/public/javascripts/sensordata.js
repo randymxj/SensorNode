@@ -8,14 +8,6 @@ function ctrl_overview_sensordata($scope, $http, $timeout)
 	// For how many data to put on the chart
 	CHART_PLOT_DENSITY = 24;
 	
-	$scope.Time = 0;
-	$scope.Temperature = 0;
-	$scope.Humidity = 0;
-	$scope.Pressure = 0;
-	$scope.VisibleLight = 0;
-	$scope.IRLight = 0;
-	$scope.UVIndex = 0;
-	
 	$scope.data = [];
 	
 	var plotdata = {
@@ -158,19 +150,19 @@ function ctrl_overview_sensordata($scope, $http, $timeout)
 			dateObj = new Date($scope.data[i].Time);
 			plotdata.labels.push(dateObj.Format("MM/dd, hh:mm"));
 			if( type == 'temp' )
-			{
-				plotdata.datasets[0].data.push($scope.data[i].temperature);
+			{		
+				plotdata.datasets[0].data.push($scope.data[i].Temperature);
 			}
 			else if( type == 'humi' )
 			{
-				plotdata.datasets[0].data.push($scope.data[i].humidity);
+				plotdata.datasets[0].data.push($scope.data[i].Humidity);
 			}
 			else if( type == 'pres' )
 			{
-				plotdata.datasets[0].data.push($scope.data[i].pressure);
+				plotdata.datasets[0].data.push($scope.data[i].Pressure);
 			}
 		}
-		
+	
 		if( type == 'temp' )
 		{
 			plotdata.type = 'temp';
@@ -203,7 +195,8 @@ function ctrl_overview_sensordata($scope, $http, $timeout)
 		var options = {
 			scaleLabel : scaleLabel,
 			scaleFontSize : 15,
-			animation: false,};
+			animation: false,
+			showTooltips: false,};
 		new Chart(ctx).Line(plotdata, options);
 	}
 	
@@ -211,12 +204,7 @@ function ctrl_overview_sensordata($scope, $http, $timeout)
 
 
 function ctrl_overview_hostinfo($scope, $http, $timeout) 
-{
-	$scope.db_count = 0;
-	$scope.db_size = 0;
-	$scope.db_storageSize = 0;
-	$scope.db_totalIndexSize = 0;
-	  
+{	  
 	// Request the realtime with a timer
 	$scope.onTimeout = function()
 	{   
@@ -235,6 +223,7 @@ function ctrl_overview_hostinfo($scope, $http, $timeout)
 			$scope.db_storageSize = data.db_storageSize;
 			$scope.db_totalIndexSize = data.db_totalIndexSize;
 			// CPU info
+			$scope.cpu_model = data.cpu_model;
 			$scope.cpu_speed = data.cpu_speed;
 			cpu_total_use = data.cpu_times_user + data.cpu_times_nice + data.cpu_times_sys + data.cpu_times_idle + data.cpu_times_irq;
 			$scope.cpu_times_user = ( ( data.cpu_times_user / cpu_total_use ) * 100 ).toFixed(3);
@@ -242,6 +231,17 @@ function ctrl_overview_hostinfo($scope, $http, $timeout)
 			$scope.cpu_times_sys = ( ( data.cpu_times_sys / cpu_total_use ) * 100 ).toFixed(3);
 			$scope.cpu_times_idle = ( ( data.cpu_times_idle / cpu_total_use ) * 100 ).toFixed(3);
 			$scope.cpu_times_irq = ( ( data.cpu_times_irq / cpu_total_use ) * 100 ).toFixed(3);
+			// Sys info
+			$scope.sys_uptime = ( data.sys_uptime / 3600 ).toFixed(3);
+			$scope.sys_loadavg1 = ( data.sys_loadavg1 ).toFixed(3);
+			$scope.sys_loadavg5 = ( data.sys_loadavg5 ).toFixed(3);
+			$scope.sys_loadavg10 = ( data.sys_loadavg10 ).toFixed(3);
+			$scope.sys_platform = data.sys_platform;
+			$scope.sys_arch = data.sys_arch;
+			$scope.sys_release = data.sys_release;
+			// Mem info
+			$scope.mem_free = ( data.mem_free / 1024000 ).toFixed(3);
+			$scope.mem_total = ( data.mem_total / 1024000 ).toFixed(3);
 		}).
 		error(function(data, status, headers, config) 
 		{

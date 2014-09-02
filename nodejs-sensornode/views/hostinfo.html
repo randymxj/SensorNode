@@ -16,6 +16,26 @@
 			
 			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 				<div ng-controller="ctrl_overview_hostinfo">
+					<h1 class="page-header">System Info</h1>
+					<div class="row placeholders">
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Platform</h4>
+							<h4><span class="text-muted">Beaglebone Black</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>OS Release</h4>
+							<h4><span class="text-muted">{{sys_platform}} {{sys_arch}} {{sys_release}}</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Uptime</h4>
+							<h4><span class="text-muted">{{sys_uptime}} Hrs</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Load Average</h4>
+							<h4><span class="text-muted">{{sys_loadavg1}} / {{sys_loadavg5}} / {{sys_loadavg10}}</span></h4>
+						</div>
+					</div>
+					
 					<h1 class="page-header">CPU Info</h1>
 					<div class="row placeholders">
 						<div class="col-xs-6 col-sm-3 placeholder">
@@ -33,6 +53,18 @@
 						<div class="col-xs-6 col-sm-3 placeholder">
 							<h4>Idle Time</h4>
 							<h4><span class="text-muted">{{cpu_times_idle}} %</span></h4>
+						</div>
+					</div>
+					
+					<h1 class="page-header">Memory Info</h1>
+					<div class="row placeholders">
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Total Memory</h4>
+							<h4><span class="text-muted">{{mem_total}} M</span></h4>
+						</div>
+						<div class="col-xs-6 col-sm-3 placeholder">
+							<h4>Free Memory</h4>
+							<h4><span class="text-muted">{{mem_free}} M</span></h4>
 						</div>
 					</div>
 					

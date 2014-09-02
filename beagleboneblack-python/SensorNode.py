@@ -1,59 +1,67 @@
 #!/usr/bin/python
 
-import SensorGlobal
 import time
 import traceback
 import pymongo
 import datetime
 
-from SensorServer import SensorServer
+import sys
+sys.path.append('/home/randymxj/OpenPythonSensor/lib_bmp180/')
+sys.path.append('/home/randymxj/OpenPythonSensor/lib_htu21d/')
+sys.path.append('/home/randymxj/OpenPythonSensor/lib_si1145/')
+
+from lib_bmp180 import BMP180
+from lib_htu21d import HTU21D
+from lib_si1145 import SI1145
 
 try:
+	# Initialize Sensors
+	bmp = BMP180()
+	htu = HTU21D()
+	si = SI1145()
+	
+	# Initialize DB
 	conn = pymongo.Connection('localhost', 27017)
 	db = conn.SensorNode
 	data = db.sensordatas
 		
-	while True:
-			
-		temp1, temp2 = SensorGlobal.readTemperature()
-		temp1 = round(temp1, 2)
-		temp2 = round(temp2, 2)
-		rh = round(SensorGlobal.readHumidity(), 2)
-		pre = round(SensorGlobal.readPressure()/100.0, 2)
-		cps = round(SensorGlobal.readCompass(), 2)
+	while True:	
+		temp1 = round(bmp.readTemperatureData(), 2)
+		pre = round(bmp.readPressureData(temp1, 3), 2)
 		
-		#print "Temperature: %.2f/%.2f C, Humidity: %.2f %%, Barometric Pressure: %.2f hPa, Magnetic compass: %.2f" % (temp1, temp2, rh, pre, cps)
+		temp2 = round(htu.readTemperatureData(), 2)
+		rh = round(htu.readHumidityData(), 2)
 		
-		value = {"time":datetime.datetime.utcnow(),
-			"temperature":temp1,
-			"humidity":rh,
-			"pressure":pre,
-			"compass":cps}
+		uvindex = round(float(si.readUVIndex())/100, 2)
+		visibleLevel = si.readAmbientLight()
+		IRLevel = si.readIRLight()
+
+		#print "Temperature: %.2f / %.2f C, Humidity: %.2f %%, Barometric Pressure: %.2f hPa, UVIndex: %.2f" % (temp1, temp2, rh, pre, uvindex)
+		
+		# Write to DB
+		value = {"Time": datetime.datetime.utcnow(),
+			"Temperature": temp1,
+			"Humidity": rh,
+			"Pressure": pre,
+			"VisibleLight": visibleLevel,
+			"IRLight": IRLevel,
+			"UVIndex": uvindex}
 		
 		data.insert(value)
-				
+		
+		# Maintain DB Size
+		count = data.find().count()
+		if count > 5000:
+			iter = data.find().sort('_id', pymongo.DESCENDING).limit(count - 5000)
+			for item in iter:
+				data.remove({"_id":item['_id']})
+
 		time.sleep(600)
 	
 except Exception, e:
 	exstr = traceback.format_exc()
 	print exstr
 	print 'Quit'
-	cur.close()
 	conn.close()
 	exit()
-			
-# Initilize the objects - TCP Server
-'''
-myServer = SensorServer()
-myServer.start()
-
-print 'Something later'
-
-while True:
-	try:
-		time.sleep(1)
-	except KeyboardInterrupt:
-		print 'Keyboard Interrupt'
-		myServer.stop()
-		break;
-'''
+	
