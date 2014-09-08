@@ -61,7 +61,9 @@ exports.gethostinfo = function(req, res){
 	mongoose.connection.close();
 };
 
-exports.getrealtimedata = function(req, res){
+exports.getrealtimedata = function(req, res){ 
+	res.header("Access-Control-Allow-Origin", "*");
+
 	var DataSchema = require('../models/sensordata.js').DataSchema;
 	var SensorData = db.model('SensorData', DataSchema);
 	
