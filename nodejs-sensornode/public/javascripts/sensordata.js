@@ -127,6 +127,11 @@ function ctrl_overview_sensordata($scope, $http, $timeout)
 		getHistoryData( 0, CHART_PLOT_DENSITY, DATA_FRAME_IN_HRS, 'pres');
 	});
 	
+	$("#link_chart_uv").click(function()
+	{
+		getHistoryData( 0, CHART_PLOT_DENSITY, DATA_FRAME_IN_HRS, 'uvin');
+	});
+	
 	$(".btn_chart_hrs").click(function()
 	{
 		var hrs = $(this).data('hrs');
@@ -161,6 +166,10 @@ function ctrl_overview_sensordata($scope, $http, $timeout)
 			{
 				plotdata.datasets[0].data.push($scope.data[i].Pressure);
 			}
+			else if( type == 'uvin' )
+			{
+				plotdata.datasets[0].data.push($scope.data[i].UVIndex);
+			}
 		}
 	
 		if( type == 'temp' )
@@ -180,6 +189,12 @@ function ctrl_overview_sensordata($scope, $http, $timeout)
 			plotdata.type = 'pres';
 			$('#title_header_chart').text('Historical Barometric Pressure Chart (' + hrs + ' hrs)');
 			scaleLabel = "<%=value%> hPa";
+		}
+		else if( type == 'uvin' )
+		{
+			plotdata.type = 'uvin';
+			$('#title_header_chart').text('Historical UV Index Chart (' + hrs + ' hrs)');
+			scaleLabel = "<%=value%>";
 		}
 		
 		$("#box_header_chart").show();
