@@ -52,10 +52,10 @@ try:
 		# Maintain DB Size
 		count = data.find().count()
 		if count > 5000:
-			iter = data.find().sort('_id', pymongo.DESCENDING).limit(count - 5000)
+			iter = data.find().sort('_id', pymongo.ASCENDING).limit(count - 5000)
 			for item in iter:
 				data.remove({"_id":item['_id']})
-
+				
 		time.sleep(600)
 	
 except Exception, e:

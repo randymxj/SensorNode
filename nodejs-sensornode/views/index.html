@@ -32,7 +32,8 @@
 						</div>
 						<div class="col-xs-6 col-sm-3 placeholder">
 							<h4><a href="#" id="link_chart_uv">UVIndex</a></h4>
-							<h4><span class="text-muted">{{UVIndex}}</span></h4>
+							<h4><span class="text-muted" ng-if="UVIndex >= 6">6+</span></h4>
+							<h4><span class="text-muted" ng-if="UVIndex < 6">{{UVIndex}}</span></h4>
 						</div>
 					</div>
 					
@@ -64,7 +65,8 @@
 									<td>{{d.Temperature}}</td>
 									<td>{{d.Humidity}}</td>
 									<td>{{d.Pressure}}</td>
-									<td>{{d.UVIndex}}</td>
+									<td ng-if="d.UVIndex >= 6">6+</td>
+									<td ng-if="d.UVIndex < 6">{{d.UVIndex}}</td>
 								</tr>
 							</tbody>
 						</table>
